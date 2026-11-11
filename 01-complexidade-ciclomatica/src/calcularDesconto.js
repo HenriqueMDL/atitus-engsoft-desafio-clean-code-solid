@@ -1,24 +1,20 @@
+const REGRAS_DESCONTO = new Map([
+  ['premium', [
+    { aplica: (cliente, valor) => valor > 1000 && cliente.anosCadastro > 5, taxa: 0.20 },
+    { aplica: (_cliente, valor) => valor > 1000, taxa: 0.15 },
+    { aplica: (_cliente, valor) => valor > 500, taxa: 0.10 },
+    { aplica: () => true, taxa: 0.05 },
+  ]],
+  ['gold', [
+    { aplica: (_cliente, valor) => valor > 1000, taxa: 0.10 },
+    { aplica: () => true, taxa: 0.02 },
+  ]],
+]);
+
 function calcularDesconto(cliente, valor) {
-  if (cliente.tipo === 'premium') {
-    if (valor > 1000) {
-      if (cliente.anosCadastro > 5) {
-        return valor * 0.20;
-      } else {
-        return valor * 0.15;
-      }
-    } else if (valor > 500) {
-      return valor * 0.10;
-    } else {
-      return valor * 0.05;
-    }
-  } else if (cliente.tipo === 'gold') {
-    if (valor > 1000) {
-      return valor * 0.10;
-    } else {
-      return valor * 0.02;
-    }
-  }
-  return 0;
+  const regras = REGRAS_DESCONTO.get(cliente.tipo) ?? [];
+  const regra = regras.find((r) => r.aplica(cliente, valor));
+  return regra ? valor * regra.taxa : 0;
 }
 
 module.exports = calcularDesconto;
